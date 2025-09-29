@@ -74,9 +74,33 @@ export function SalaryCharts({ entries }: SalaryChartsProps) {
               />
               <Legend verticalAlign="top" height={36} wrapperStyle={{ color: '#e2e8f0' }} />
               <Area type="monotone" dataKey="salary" stroke="#38bdf8" fill="url(#colorSalary)" strokeWidth={2.8} name="Salary" />
-              <Line type="monotone" dataKey="min" stroke="#f97316" strokeWidth={2} dot={false} name="Band Min" />
-              <Line type="monotone" dataKey="mid" stroke="#22d3ee" strokeDasharray="4 6" strokeWidth={2} dot={false} name="Band Mid" />
-              <Line type="monotone" dataKey="max" stroke="#34d399" strokeWidth={2} dot={false} name="Band Max" />
+              <Line
+                type="monotone"
+                dataKey="min"
+                stroke="#f97316"
+                strokeWidth={2}
+                strokeDasharray="2 6"
+                dot={false}
+                name="Band Min"
+              />
+              <Line
+                type="monotone"
+                dataKey="mid"
+                stroke="#22d3ee"
+                strokeWidth={2}
+                strokeDasharray="2 6"
+                dot={false}
+                name="Band Mid"
+              />
+              <Line
+                type="monotone"
+                dataKey="max"
+                stroke="#34d399"
+                strokeWidth={2}
+                strokeDasharray="2 6"
+                dot={false}
+                name="Band Max"
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
