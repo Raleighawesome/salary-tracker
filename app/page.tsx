@@ -42,18 +42,16 @@ export default function HomePage() {
   return (
     <>
       <PageHeader />
+      {!isLoading && !error && <SalaryCharts entries={entries} />}
       <MetricGrid entries={entries} />
-      <SalaryForm onCreate={handleCreate} />
       {isLoading && !entries.length ? (
         <p className="loading">Loading your salary history…</p>
       ) : error ? (
         <p className="error">{error}</p>
       ) : (
-        <>
-          <SalaryCharts entries={entries} />
-          <SalaryTable entries={entries} />
-        </>
+        <SalaryTable entries={entries} />
       )}
+      <SalaryForm onCreate={handleCreate} />
       <style jsx>{`
         .loading {
           color: rgba(226, 232, 240, 0.75);

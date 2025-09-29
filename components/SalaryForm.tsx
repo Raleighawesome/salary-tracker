@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { SalaryEntry, SalaryPayload } from '@/types/salary';
 import { z } from 'zod';
 
@@ -35,6 +35,7 @@ const salarySchema = z.object({
 export function SalaryForm({ onCreate }: SalaryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const [values, setValues] = useState({
     role: '',
     year: new Date().getFullYear().toString(),
@@ -43,6 +44,29 @@ export function SalaryForm({ onCreate }: SalaryFormProps) {
     range_mid: '',
     range_max: ''
   });
+
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    setError(null);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleClose, isOpen]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -84,6 +108,7 @@ export function SalaryForm({ onCreate }: SalaryFormProps) {
         range_mid: '',
         range_max: ''
       }));
+      handleClose();
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Unexpected error');
     } finally {
@@ -92,95 +117,194 @@ export function SalaryForm({ onCreate }: SalaryFormProps) {
   };
 
   return (
-    <section className="form-wrapper" aria-labelledby="entry-form">
-      <header>
-        <h2 id="entry-form">Add compensation data</h2>
-        <p>Keep your history up to date and watch the story evolve instantly.</p>
-      </header>
-      <form onSubmit={handleSubmit} className="form-grid">
-        <label>
-          <span>Role</span>
-          <input
-            name="role"
-            value={values.role}
-            onChange={handleChange}
-            placeholder="Senior Product Manager"
-            required
-          />
-        </label>
-        <label>
-          <span>Year</span>
-          <input name="year" value={values.year} onChange={handleChange} type="number" min="1900" max="2100" required />
-        </label>
-        <label>
-          <span>Base Salary</span>
-          <input
-            name="salary"
-            value={values.salary}
-            onChange={handleChange}
-            inputMode="decimal"
-            placeholder="160000"
-            required
-          />
-        </label>
-        <label>
-          <span>Range Min</span>
-          <input
-            name="range_min"
-            value={values.range_min}
-            onChange={handleChange}
-            inputMode="decimal"
-            placeholder="140000"
-            required
-          />
-        </label>
-        <label>
-          <span>Range Mid</span>
-          <input
-            name="range_mid"
-            value={values.range_mid}
-            onChange={handleChange}
-            inputMode="decimal"
-            placeholder="160000"
-            required
-          />
-        </label>
-        <label>
-          <span>Range Max</span>
-          <input
-            name="range_max"
-            value={values.range_max}
-            onChange={handleChange}
-            inputMode="decimal"
-            placeholder="180000"
-            required
-          />
-        </label>
-        <button type="submit" disabled={isSubmitting} className="submit-button">
-          {isSubmitting ? 'Saving…' : 'Save entry'}
-        </button>
-      </form>
-      {error && <p className="error">{error}</p>}
+    <>
+      <button
+        type="button"
+        className="fab"
+        onClick={() => setIsOpen(true)}
+        aria-label="Add compensation entry"
+      >
+        <span aria-hidden>+</span>
+      </button>
+      {isOpen && (
+        <div className="popover-backdrop" role="presentation" onClick={handleClose}>
+          <section
+            className="form-wrapper"
+            aria-labelledby="entry-form"
+            role="dialog"
+            aria-modal="true"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header>
+              <div className="title-group">
+                <h2 id="entry-form">Add compensation data</h2>
+                <p>Keep your history up to date and watch the story evolve instantly.</p>
+              </div>
+              <button type="button" className="close-button" onClick={handleClose} aria-label="Close form">
+                ×
+              </button>
+            </header>
+            <form onSubmit={handleSubmit} className="form-grid">
+              <label>
+                <span>Role</span>
+                <input
+                  name="role"
+                  value={values.role}
+                  onChange={handleChange}
+                  placeholder="Senior Product Manager"
+                  required
+                />
+              </label>
+              <label>
+                <span>Year</span>
+                <input
+                  name="year"
+                  value={values.year}
+                  onChange={handleChange}
+                  type="number"
+                  min="1900"
+                  max="2100"
+                  required
+                />
+              </label>
+              <label>
+                <span>Base Salary</span>
+                <input
+                  name="salary"
+                  value={values.salary}
+                  onChange={handleChange}
+                  inputMode="decimal"
+                  placeholder="160000"
+                  required
+                />
+              </label>
+              <label>
+                <span>Range Min</span>
+                <input
+                  name="range_min"
+                  value={values.range_min}
+                  onChange={handleChange}
+                  inputMode="decimal"
+                  placeholder="140000"
+                  required
+                />
+              </label>
+              <label>
+                <span>Range Mid</span>
+                <input
+                  name="range_mid"
+                  value={values.range_mid}
+                  onChange={handleChange}
+                  inputMode="decimal"
+                  placeholder="160000"
+                  required
+                />
+              </label>
+              <label>
+                <span>Range Max</span>
+                <input
+                  name="range_max"
+                  value={values.range_max}
+                  onChange={handleChange}
+                  inputMode="decimal"
+                  placeholder="180000"
+                  required
+                />
+              </label>
+              <button type="submit" disabled={isSubmitting} className="submit-button">
+                {isSubmitting ? 'Saving…' : 'Save entry'}
+              </button>
+            </form>
+            {error && <p className="error">{error}</p>}
+          </section>
+        </div>
+      )}
       <style jsx>{`
+        .fab {
+          position: fixed;
+          bottom: 1.5rem;
+          right: 1.5rem;
+          width: 3.25rem;
+          height: 3.25rem;
+          border-radius: 50%;
+          background: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(14, 165, 233, 0.9));
+          color: #f8fafc;
+          font-size: 1.75rem;
+          line-height: 1;
+          border: none;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 12px 32px rgba(15, 23, 42, 0.45);
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+          z-index: 40;
+        }
+
+        .fab:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 16px 36px rgba(37, 99, 235, 0.35);
+        }
+
+        .popover-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.6);
+          display: flex;
+          justify-content: flex-end;
+          align-items: flex-end;
+          padding: 1.25rem;
+          z-index: 30;
+        }
+
         .form-wrapper {
-          background: rgba(15, 23, 42, 0.65);
-          border: 1px solid rgba(59, 130, 246, 0.25);
+          background: rgba(15, 23, 42, 0.92);
+          border: 1px solid rgba(59, 130, 246, 0.3);
           border-radius: 20px;
           padding: 1.8rem 1.5rem;
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
-          margin-bottom: 2.5rem;
+          width: min(420px, 100%);
+          max-height: min(80vh, 560px);
+          box-shadow: 0 18px 38px rgba(2, 6, 23, 0.45);
+          overflow-y: auto;
         }
 
-        header h2 {
+        header {
+          display: flex;
+          gap: 1rem;
+          align-items: flex-start;
+          justify-content: space-between;
+        }
+
+        .title-group h2 {
           font-size: 1.25rem;
           margin-bottom: 0.35rem;
         }
 
-        header p {
+        .title-group p {
           color: rgba(226, 232, 240, 0.65);
           font-size: 0.95rem;
+        }
+
+        .close-button {
+          border: none;
+          background: rgba(15, 23, 42, 0.6);
+          color: rgba(226, 232, 240, 0.75);
+          font-size: 1.5rem;
+          line-height: 1;
+          border-radius: 999px;
+          width: 2rem;
+          height: 2rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .close-button:hover {
+          background: rgba(37, 99, 235, 0.3);
+          color: #f8fafc;
         }
 
         .form-grid {
@@ -240,7 +364,26 @@ export function SalaryForm({ onCreate }: SalaryFormProps) {
           color: #fca5a5;
           font-size: 0.9rem;
         }
+
+        @media (max-width: 640px) {
+          .popover-backdrop {
+            padding: 1rem;
+          }
+
+          .form-wrapper {
+            width: 100%;
+            max-height: min(85vh, 620px);
+          }
+
+          .fab {
+            bottom: 1rem;
+            right: 1rem;
+            width: 3rem;
+            height: 3rem;
+            font-size: 1.5rem;
+          }
+        }
       `}</style>
-    </section>
+    </>
   );
 }
