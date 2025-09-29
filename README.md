@@ -1,4 +1,74 @@
- very first prompt. Will delete this later.
+# Salary Navigator
 
-Create an interactive app that allows me to track my salary changes over time. I will also provide my role's min mid and max comparatio ranges for each year. I have about five years of historical data. I'd like the app to beautifully visualize progression of salary data over time. It needs to be dark mode and mobile first.
+Track your salary progression against compensation bands, surface year-over-year insights, and keep a clean ledger of updates.
 
+## Features
+
+- 📈 **Rich visualizations** – Line and area charts show salary vs. band and YoY trends in a dark, mobile-first layout.
+- 🧮 **Actionable metrics** – Automatic summaries for growth, YoY deltas, compa ratio, and more.
+- 🗂️ **Supabase-backed storage** – Persist entries for each role/year with room to append new data over time.
+- 📝 **In-app editing** – Add new salary entries directly through the interface.
+
+## Getting started
+
+### 1. Configure environment variables
+
+Create a `.env.local` file with your Supabase project credentials:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+```
+
+> ℹ️ `NEXT_PUBLIC_SUPABASE_ANON_KEY` is reserved for future authenticated features, but defining it keeps the client flexible.
+
+### 2. Create the storage table
+
+Run the following SQL in Supabase (SQL Editor → New query) to create the table used by the app:
+
+```sql
+create table if not exists public.salary_history (
+  id uuid default gen_random_uuid() primary key,
+  role text not null,
+  year integer not null check (year between 1900 and 2100),
+  salary numeric not null check (salary > 0),
+  range_min numeric not null check (range_min > 0),
+  range_mid numeric not null check (range_mid > 0),
+  range_max numeric not null check (range_max > 0),
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists salary_history_year_idx on public.salary_history (year asc);
+```
+
+Grant anonymous access (if desired) by updating policies or keep it restricted and use the service-role protected API route.
+
+### 3. Install dependencies and run locally
+
+```bash
+npm install
+npm run dev
+```
+
+Visit http://localhost:3000 to interact with the dashboard.
+
+## Project structure
+
+```
+app/
+  api/salaries/route.ts   # Supabase-backed API route for CRUD operations
+  page.tsx                # Client dashboard with charts, metrics, and data table
+  layout.tsx              # Global HTML structure and metadata
+  globals.css             # Base styles + dark theme
+components/               # Reusable UI blocks (forms, charts, metrics, etc.)
+lib/supabaseAdmin.ts      # Server-side Supabase client (service role)
+types/salary.ts           # Shared TypeScript contracts
+utils/metrics.ts          # Derived analytics helpers
+```
+
+## Next steps
+
+- Authentication/authorization for multi-user access.
+- Editing & deleting entries.
+- Support for multiple roles or currencies.
