@@ -1,6 +1,17 @@
 'use client';
 
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, Legend, LineChart, Line, CartesianGrid } from 'recharts';
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  LineChart,
+  Line,
+  CartesianGrid
+} from 'recharts';
 import { SalaryEntry } from '@/types/salary';
 import { calculateYearOverYear, normalizeEntriesForChart } from '@/utils/metrics';
 
@@ -47,6 +58,19 @@ export function SalaryCharts({ entries }: SalaryChartsProps) {
     point.min != null && point.mid != null && point.max != null
   );
 
+  const latestEntry = areaData[areaData.length - 1];
+  const currentYearMaxBand = latestEntry?.max;
+  const fallbackMax = areaData.reduce((highest, point) => {
+    const bandValues = [point.salary, point.min, point.mid, point.max].filter(
+      (value): value is number => value != null
+    );
+    return bandValues.length ? Math.max(highest, ...bandValues) : highest;
+  }, Number.NEGATIVE_INFINITY);
+  const computedYAxisMax =
+    currentYearMaxBand ?? (Number.isFinite(fallbackMax) ? fallbackMax : undefined);
+  const yAxisDomain: [number, number | 'auto'] =
+    computedYAxisMax != null ? [0, computedYAxisMax] : [0, 'auto'];
+
   return (
     <section className="chart-grid">
       <article>
@@ -56,7 +80,7 @@ export function SalaryCharts({ entries }: SalaryChartsProps) {
         </header>
         <div className="chart-wrapper">
           <ResponsiveContainer width="100%" height={320}>
-            <AreaChart data={areaData}>
+            <ComposedChart data={areaData}>
               <defs>
                 <linearGradient id="colorSalary" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.85} />
@@ -65,7 +89,12 @@ export function SalaryCharts({ entries }: SalaryChartsProps) {
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} />
               <XAxis dataKey="year" stroke="rgba(226, 232, 240, 0.65)" />
-              <YAxis stroke="rgba(226, 232, 240, 0.65)" tickFormatter={currencyFormatter} width={100} />
+              <YAxis
+                stroke="rgba(226, 232, 240, 0.65)"
+                tickFormatter={currencyFormatter}
+                width={100}
+                domain={yAxisDomain}
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#0f172a',
@@ -108,7 +137,7 @@ export function SalaryCharts({ entries }: SalaryChartsProps) {
                   />
                 </>
               )}
-            </AreaChart>
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       </article>
