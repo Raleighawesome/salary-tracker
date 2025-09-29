@@ -43,6 +43,9 @@ export function SalaryCharts({ entries }: SalaryChartsProps) {
 
   const areaData = normalizeEntriesForChart(entries);
   const yoyData = calculateYearOverYear(entries);
+  const hasBandData = areaData.some((point) =>
+    point.min != null && point.mid != null && point.max != null
+  );
 
   return (
     <section className="chart-grid">
@@ -74,33 +77,37 @@ export function SalaryCharts({ entries }: SalaryChartsProps) {
               />
               <Legend verticalAlign="top" height={36} wrapperStyle={{ color: '#e2e8f0' }} />
               <Area type="monotone" dataKey="salary" stroke="#38bdf8" fill="url(#colorSalary)" strokeWidth={2.8} name="Salary" />
-              <Line
-                type="monotone"
-                dataKey="min"
-                stroke="#f97316"
-                strokeWidth={2}
-                strokeDasharray="2 6"
-                dot={false}
-                name="Band Min"
-              />
-              <Line
-                type="monotone"
-                dataKey="mid"
-                stroke="#22d3ee"
-                strokeWidth={2}
-                strokeDasharray="2 6"
-                dot={false}
-                name="Band Mid"
-              />
-              <Line
-                type="monotone"
-                dataKey="max"
-                stroke="#34d399"
-                strokeWidth={2}
-                strokeDasharray="2 6"
-                dot={false}
-                name="Band Max"
-              />
+              {hasBandData && (
+                <>
+                  <Line
+                    type="monotone"
+                    dataKey="min"
+                    stroke="#f97316"
+                    strokeWidth={2}
+                    strokeDasharray="3 5"
+                    dot={false}
+                    name="Band Min"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="mid"
+                    stroke="#22d3ee"
+                    strokeWidth={2}
+                    strokeDasharray="3 5"
+                    dot={false}
+                    name="Band Mid"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="max"
+                    stroke="#34d399"
+                    strokeWidth={2}
+                    strokeDasharray="3 5"
+                    dot={false}
+                    name="Band Max"
+                  />
+                </>
+              )}
             </AreaChart>
           </ResponsiveContainer>
         </div>

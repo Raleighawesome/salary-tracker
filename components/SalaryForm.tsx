@@ -118,14 +118,17 @@ export function SalaryForm({ onCreate }: SalaryFormProps) {
 
   return (
     <>
-      <button
-        type="button"
-        className="fab"
-        onClick={() => setIsOpen(true)}
-        aria-label="Add compensation entry"
-      >
-        <span aria-hidden>+</span>
-      </button>
+      {!isOpen && (
+        <button
+          type="button"
+          className="fab"
+          onClick={() => setIsOpen(true)}
+          aria-label="Add compensation entry"
+          aria-expanded={isOpen}
+        >
+          <span aria-hidden>+</span>
+        </button>
+      )}
       {isOpen && (
         <div className="popover-backdrop" role="presentation" onClick={handleClose}>
           <section
