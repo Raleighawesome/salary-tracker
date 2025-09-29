@@ -18,10 +18,9 @@ Create a `.env.local` file with your Supabase project credentials:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 ```
 
-> ℹ️ `NEXT_PUBLIC_SUPABASE_ANON_KEY` is reserved for future authenticated features, but defining it keeps the client flexible.
+> ℹ️ `NEXT_PUBLIC_SUPABASE_ANON_KEY` is used for all Supabase requests.
 
 ### 2. Create the storage table
 
@@ -42,7 +41,7 @@ create table if not exists public.salary_history (
 create index if not exists salary_history_year_idx on public.salary_history (year asc);
 ```
 
-Grant anonymous access (if desired) by updating policies or keep it restricted and use the service-role protected API route.
+Grant anonymous access (if desired) by updating policies to allow the anon key to read and insert salary history records.
 
 ### 3. Install dependencies and run locally
 
@@ -62,7 +61,7 @@ app/
   layout.tsx              # Global HTML structure and metadata
   globals.css             # Base styles + dark theme
 components/               # Reusable UI blocks (forms, charts, metrics, etc.)
-lib/supabaseAdmin.ts      # Server-side Supabase client (service role)
+lib/supabaseAdmin.ts      # Server-side Supabase client using anon key
 types/salary.ts           # Shared TypeScript contracts
 utils/metrics.ts          # Derived analytics helpers
 ```
