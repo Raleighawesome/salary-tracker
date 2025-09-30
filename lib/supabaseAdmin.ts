@@ -1,7 +1,7 @@
 import { SalaryPayload } from '@/types/salary';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 const restEndpoint = supabaseUrl ? `${supabaseUrl.replace(/\/$/, '')}/rest/v1` : undefined;
 
 if (!supabaseUrl || !restEndpoint) {
@@ -15,11 +15,12 @@ if (!serviceRoleKey) {
 const defaultHeaders: Record<string, string> = {
   apikey: serviceRoleKey,
   Authorization: `Bearer ${serviceRoleKey}`,
-  'Content-Type': 'application/json'
+  'Content-Type': 'application/json',
+  Accept: 'application/json'
 };
 
 export async function fetchSalaryHistory() {
-  const response = await fetch(`${restEndpoint}/salary_history?order=year.asc`, {
+  const response = await fetch(`${restEndpoint}/salary_history?select=*&order=year.asc`, {
     headers: defaultHeaders,
     cache: 'no-store'
   });
@@ -32,13 +33,28 @@ export async function fetchSalaryHistory() {
 }
 
 export async function insertSalary(payload: SalaryPayload) {
+  const { range_min, range_max, ...rest } = payload;
+
+  const body: Record<string, number | string> & {
+    range_min?: number;
+    range_max?: number;
+  } = { ...rest };
+
+  if (range_min != null) {
+    body.range_min = range_min;
+  }
+
+  if (range_max != null) {
+    body.range_max = range_max;
+  }
+
   const response = await fetch(`${restEndpoint}/salary_history`, {
     method: 'POST',
     headers: {
       ...defaultHeaders,
       Prefer: 'return=representation'
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(body)
   });
 
   if (!response.ok) {
