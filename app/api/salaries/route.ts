@@ -6,9 +6,9 @@ const payloadSchema = z.object({
   role: z.string().min(2),
   year: z.number().int().gte(1900).lte(2100),
   salary: z.number().positive(),
-  range_min: z.number().positive(),
+  range_min: z.number().positive().nullable(),
   range_mid: z.number().positive(),
-  range_max: z.number().positive()
+  range_max: z.number().positive().nullable()
 });
 
 export async function GET() {

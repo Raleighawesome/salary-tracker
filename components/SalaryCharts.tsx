@@ -54,26 +54,33 @@ export function SalaryCharts({ entries }: SalaryChartsProps) {
 
   const areaData = normalizeEntriesForChart(entries);
   const yoyData = calculateYearOverYear(entries);
-  const hasBandData = areaData.some((point) =>
-    point.min != null && point.mid != null && point.max != null
-  );
+  const hasMinData = areaData.some((point) => point.min != null);
+  const hasMaxData = areaData.some((point) => point.max != null);
 
   const latestEntry = areaData[areaData.length - 1];
-  const currentYearMaxBand = latestEntry?.max;
+  const latestValues = latestEntry
+    ? [latestEntry.salary, latestEntry.min, latestEntry.mid, latestEntry.max].filter(
+        (value): value is number => value != null
+      )
+    : [];
   const fallbackMax = areaData.reduce((highest, point) => {
     const bandValues = [point.salary, point.min, point.mid, point.max].filter(
       (value): value is number => value != null
     );
     return bandValues.length ? Math.max(highest, ...bandValues) : highest;
   }, Number.NEGATIVE_INFINITY);
-  const fallbackMinBand = areaData.reduce(
-    (lowest, point) =>
-      point.min != null ? Math.min(lowest, point.min) : lowest,
-    Number.POSITIVE_INFINITY
-  );
+  const fallbackMinBand = areaData.reduce((lowest, point) => {
+    const bandValues = [point.salary, point.min, point.mid, point.max].filter(
+      (value): value is number => value != null
+    );
+    return bandValues.length ? Math.min(lowest, ...bandValues) : lowest;
+  }, Number.POSITIVE_INFINITY);
 
-  const computedYAxisMax =
-    currentYearMaxBand ?? (Number.isFinite(fallbackMax) ? fallbackMax : undefined);
+  const computedYAxisMax = latestValues.length
+    ? Math.max(...latestValues)
+    : Number.isFinite(fallbackMax)
+      ? fallbackMax
+      : undefined;
   const computedYAxisMin = Number.isFinite(fallbackMinBand)
     ? fallbackMinBand
     : undefined;
@@ -118,36 +125,36 @@ export function SalaryCharts({ entries }: SalaryChartsProps) {
               />
               <Legend verticalAlign="top" height={36} wrapperStyle={{ color: '#e2e8f0' }} />
               <Area type="monotone" dataKey="salary" stroke="#38bdf8" fill="url(#colorSalary)" strokeWidth={2.8} name="Salary" />
-              {hasBandData && (
-                <>
-                  <Line
-                    type="monotone"
-                    dataKey="min"
-                    stroke="#f97316"
-                    strokeWidth={2}
-                    strokeDasharray="3 5"
-                    dot={false}
-                    name="Band Min"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="mid"
-                    stroke="#22d3ee"
-                    strokeWidth={2}
-                    strokeDasharray="3 5"
-                    dot={false}
-                    name="Band Mid"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="max"
-                    stroke="#34d399"
-                    strokeWidth={2}
-                    strokeDasharray="3 5"
-                    dot={false}
-                    name="Band Max"
-                  />
-                </>
+              {hasMinData && (
+                <Line
+                  type="monotone"
+                  dataKey="min"
+                  stroke="#f97316"
+                  strokeWidth={2}
+                  strokeDasharray="3 5"
+                  dot={false}
+                  name="Band Min"
+                />
+              )}
+              <Line
+                type="monotone"
+                dataKey="mid"
+                stroke="#22d3ee"
+                strokeWidth={2}
+                strokeDasharray="3 5"
+                dot={false}
+                name="Band Mid"
+              />
+              {hasMaxData && (
+                <Line
+                  type="monotone"
+                  dataKey="max"
+                  stroke="#34d399"
+                  strokeWidth={2}
+                  strokeDasharray="3 5"
+                  dot={false}
+                  name="Band Max"
+                />
               )}
             </ComposedChart>
           </ResponsiveContainer>
