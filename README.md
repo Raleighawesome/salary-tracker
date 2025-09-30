@@ -32,9 +32,9 @@ create table if not exists public.salary_history (
   role text not null,
   year integer not null check (year between 1900 and 2100),
   salary numeric not null check (salary > 0),
-  range_min numeric not null check (range_min > 0),
+  range_min numeric check (range_min > 0),
   range_mid numeric not null check (range_mid > 0),
-  range_max numeric not null check (range_max > 0),
+  range_max numeric check (range_max > 0),
   created_at timestamptz not null default timezone('utc', now())
 );
 

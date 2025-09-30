@@ -8,28 +8,52 @@ type SalaryFormProps = {
   onCreate: (entry: SalaryEntry) => void;
 };
 
+const positiveNumberField = (label: string) =>
+  z.preprocess(
+    (value) => {
+      if (typeof value !== 'string') {
+        return value;
+      }
+
+      const parsed = Number.parseFloat(value);
+      return Number.isNaN(parsed) ? undefined : parsed;
+    },
+    z
+      .number({ invalid_type_error: `${label} must be a number` })
+      .positive(`${label} must be positive`)
+  );
+
+const optionalPositiveNumberField = (label: string) =>
+  z.preprocess(
+    (value) => {
+      if (typeof value !== 'string') {
+        return value;
+      }
+
+      const trimmed = value.trim();
+      if (trimmed === '') {
+        return null;
+      }
+
+      const parsed = Number.parseFloat(trimmed);
+      return Number.isNaN(parsed) ? undefined : parsed;
+    },
+    z
+      .number({ invalid_type_error: `${label} must be a number` })
+      .positive(`${label} must be positive`)
+      .nullable()
+  );
+
 const salarySchema = z.object({
   role: z.string().min(2, 'Role is required'),
   year: z
     .string()
     .transform((value) => Number.parseInt(value, 10))
     .pipe(z.number().min(1900).max(2100)),
-  salary: z
-    .string()
-    .transform((value) => Number.parseFloat(value))
-    .pipe(z.number().positive('Salary must be positive')),
-  range_min: z
-    .string()
-    .transform((value) => Number.parseFloat(value))
-    .pipe(z.number().positive('Min must be positive')),
-  range_mid: z
-    .string()
-    .transform((value) => Number.parseFloat(value))
-    .pipe(z.number().positive('Mid must be positive')),
-  range_max: z
-    .string()
-    .transform((value) => Number.parseFloat(value))
-    .pipe(z.number().positive('Max must be positive'))
+  salary: positiveNumberField('Salary'),
+  range_min: optionalPositiveNumberField('Min'),
+  range_mid: positiveNumberField('Mid'),
+  range_max: optionalPositiveNumberField('Max')
 });
 
 export function SalaryForm({ onCreate }: SalaryFormProps) {
@@ -189,7 +213,6 @@ export function SalaryForm({ onCreate }: SalaryFormProps) {
                   onChange={handleChange}
                   inputMode="decimal"
                   placeholder="140000"
-                  required
                 />
               </label>
               <label>
@@ -211,7 +234,6 @@ export function SalaryForm({ onCreate }: SalaryFormProps) {
                   onChange={handleChange}
                   inputMode="decimal"
                   placeholder="180000"
-                  required
                 />
               </label>
               <button type="submit" disabled={isSubmitting} className="submit-button">

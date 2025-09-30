@@ -10,6 +10,9 @@ const currencyFormatter = (value: number) =>
     maximumFractionDigits: 0
   }).format(value);
 
+const formatOptionalCurrency = (value: number | null) =>
+  value != null ? currencyFormatter(value) : '—';
+
 type SalaryTableProps = {
   entries: SalaryEntry[];
 };
@@ -46,9 +49,9 @@ export function SalaryTable({ entries }: SalaryTableProps) {
                 <td>{entry.year}</td>
                 <td>{entry.role}</td>
                 <td>{currencyFormatter(entry.salary)}</td>
-                <td>{currencyFormatter(entry.range_min)}</td>
+                <td>{formatOptionalCurrency(entry.range_min)}</td>
                 <td>{currencyFormatter(entry.range_mid)}</td>
-                <td>{currencyFormatter(entry.range_max)}</td>
+                <td>{formatOptionalCurrency(entry.range_max)}</td>
                 <td>{((entry.salary / entry.range_mid) * 100).toFixed(1)}%</td>
               </tr>
             ))}
