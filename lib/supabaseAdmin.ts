@@ -1,20 +1,20 @@
 import { SalaryPayload } from '@/types/salary';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const restEndpoint = supabaseUrl ? `${supabaseUrl.replace(/\/$/, '')}/rest/v1` : undefined;
 
 if (!supabaseUrl || !restEndpoint) {
   throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable.');
 }
 
-if (!anonKey) {
-  throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable.');
+if (!serviceRoleKey) {
+  throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable.');
 }
 
 const defaultHeaders: Record<string, string> = {
-  apikey: anonKey,
-  Authorization: `Bearer ${anonKey}`,
+  apikey: serviceRoleKey,
+  Authorization: `Bearer ${serviceRoleKey}`,
   'Content-Type': 'application/json'
 };
 
