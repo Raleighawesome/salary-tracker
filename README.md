@@ -43,7 +43,11 @@ create index if not exists salary_history_year_idx on public.salary_history (yea
 
 Grant anonymous access (if desired) by updating policies to allow the anon key to read and insert salary history records.
 
-### 3. Install dependencies and run locally
+### 3. Provision Supabase users
+
+Create the email/password accounts that should have access to the dashboard (Supabase Dashboard → Authentication → Users → Add user). Use the same credentials when signing in through the app.
+
+### 4. Install dependencies and run locally
 
 ```bash
 npm install
