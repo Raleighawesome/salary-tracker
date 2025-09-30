@@ -66,10 +66,22 @@ export function SalaryCharts({ entries }: SalaryChartsProps) {
     );
     return bandValues.length ? Math.max(highest, ...bandValues) : highest;
   }, Number.NEGATIVE_INFINITY);
+  const fallbackMinBand = areaData.reduce(
+    (lowest, point) =>
+      point.min != null ? Math.min(lowest, point.min) : lowest,
+    Number.POSITIVE_INFINITY
+  );
+
   const computedYAxisMax =
     currentYearMaxBand ?? (Number.isFinite(fallbackMax) ? fallbackMax : undefined);
-  const yAxisDomain: [number, number | 'auto'] =
-    computedYAxisMax != null ? [0, computedYAxisMax] : [0, 'auto'];
+  const computedYAxisMin = Number.isFinite(fallbackMinBand)
+    ? fallbackMinBand
+    : undefined;
+
+  const yAxisDomain: [number | 'auto', number | 'auto'] = [
+    computedYAxisMin ?? 0,
+    computedYAxisMax ?? 'auto'
+  ];
 
   return (
     <section className="chart-grid">
