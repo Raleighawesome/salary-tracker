@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
 import './globals.css';
-import { PasswordProtection } from '@/components/PasswordProtection';
 
 type RootLayoutProps = {
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 export const metadata: Metadata = {
@@ -16,9 +14,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body>
-        <PasswordProtection>
-          <main>{children}</main>
-        </PasswordProtection>
+        <main>{children}</main>
       </body>
     </html>
   );
