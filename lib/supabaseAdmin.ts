@@ -1,38 +1,33 @@
 import { SalaryPayload } from '@/types/salary';
+import { getSupabaseClient } from './supabase';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-const restEndpoint = supabaseUrl ? `${supabaseUrl.replace(/\/$/, '')}/rest/v1` : undefined;
-
-if (!supabaseUrl || !restEndpoint) {
-  throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable.');
-}
-
-if (!anonKey) {
-  throw new Error('Missing NEXT_PUBLIC_SUPABASE_ANON_KEY environment variable.');
-}
-
-const defaultHeaders: Record<string, string> = {
-  apikey: anonKey,
-  Authorization: `Bearer ${anonKey}`,
-  'Content-Type': 'application/json',
-  Accept: 'application/json'
-};
+// Use the same Supabase client for consistency with authentication
+const supabase = getSupabaseClient();
 
 export async function fetchSalaryHistory() {
-  const response = await fetch(`${restEndpoint}/salary_history?select=*&order=year.asc`, {
-    headers: defaultHeaders,
-    cache: 'no-store'
-  });
-
-  if (!response.ok) {
-    throw new Error(`Supabase request failed: ${await response.text()}`);
+  // Check if Supabase is properly configured
+  if (!supabase.from) {
+    throw new Error('Supabase is not properly configured. Please check your environment variables.');
   }
 
-  return response.json();
+  const { data, error } = await supabase
+    .from('salary_history')
+    .select('*')
+    .order('year', { ascending: true });
+
+  if (error) {
+    throw new Error(`Supabase request failed: ${error.message}`);
+  }
+
+  return data || [];
 }
 
 export async function insertSalary(payload: SalaryPayload) {
+  // Check if Supabase is properly configured
+  if (!supabase.from) {
+    throw new Error('Supabase is not properly configured. Please check your environment variables.');
+  }
+
   const { range_min, range_max, ...rest } = payload;
 
   const body: Record<string, number | string> & {
@@ -48,19 +43,15 @@ export async function insertSalary(payload: SalaryPayload) {
     body.range_max = range_max;
   }
 
-  const response = await fetch(`${restEndpoint}/salary_history`, {
-    method: 'POST',
-    headers: {
-      ...defaultHeaders,
-      Prefer: 'return=representation'
-    },
-    body: JSON.stringify(body)
-  });
+  const { data, error } = await supabase
+    .from('salary_history')
+    .insert(body)
+    .select()
+    .single();
 
-  if (!response.ok) {
-    throw new Error(`Supabase insert failed: ${await response.text()}`);
+  if (error) {
+    throw new Error(`Supabase insert failed: ${error.message}`);
   }
 
-  const data = await response.json();
-  return Array.isArray(data) ? data[0] : data;
+  return data;
 }
