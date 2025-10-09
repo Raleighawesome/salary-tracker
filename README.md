@@ -69,3 +69,4 @@ utils/metrics.ts          # Derived analytics helpers
 - Authentication/authorization for multi-user access.
 - Editing & deleting entries.
 - Support for multiple roles or currencies.
+- Expand the deduction model for additional benefits or tax locations.

@@ -1,4 +1,5 @@
 import { SalaryEntry } from '@/types/salary';
+import { estimateNetPay } from '@/utils/deductions';
 
 type MetricSummary = {
   label: string;
@@ -34,12 +35,23 @@ export const buildMetricSummaries = (entries: SalaryEntry[]): MetricSummary[] =>
 
   const averageCompaRatio =
     sorted.reduce((sum, entry) => sum + entry.salary / entry.range_mid, 0) / sorted.length;
+  const netProjection = estimateNetPay(latest.salary);
 
   return [
     {
       label: 'Current Salary',
       value: formatCurrency(latest.salary),
       helper: `${latest.year} • ${latest.role}`
+    },
+    {
+      label: 'Monthly Take-Home',
+      value: formatCurrency(netProjection.netMonthly),
+      helper: `Net after ${(netProjection.totalRate * 100).toFixed(1)}% deductions`
+    },
+    {
+      label: 'Per Paycheck',
+      value: formatCurrency(netProjection.netPerPaycheck),
+      helper: `Biweekly net • ${(netProjection.totalRate * 100).toFixed(1)}% withheld`
     },
     {
       label: 'Total Growth',

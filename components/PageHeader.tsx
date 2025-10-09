@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 export function PageHeader() {
   return (
     <header className="page-header">
@@ -11,6 +13,11 @@ export function PageHeader() {
         Capture each compensation update, compare it against your band, and surface the insights that power smarter salary
         conversations.
       </p>
+      <div className="actions">
+        <Link href="/deductions" className="link">
+          View deduction breakdown →
+        </Link>
+      </div>
       <style jsx>{`
         .page-header {
           display: flex;
@@ -36,6 +43,20 @@ export function PageHeader() {
           color: rgba(226, 232, 240, 0.75);
           font-size: 1rem;
           max-width: 60ch;
+        }
+
+        .actions {
+          margin-top: 0.5rem;
+        }
+
+        .link {
+          color: #38bdf8;
+          text-decoration: none;
+          font-weight: 500;
+        }
+
+        .link:hover {
+          text-decoration: underline;
         }
       `}</style>
     </header>
